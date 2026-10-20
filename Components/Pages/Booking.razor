@@ -1,0 +1,354 @@
+@page "/booking"
+@rendermode InteractiveServer
+
+<PageTitle>Book Our Paradise - Kazakhstan Expeditions</PageTitle>
+
+<section class="mx-auto max-w-7xl px-6 py-12">
+    <!-- Header -->
+    <div class="border-b border-sky-100 pb-6">
+        <span class="badge-gold">✦ Reserve Your Paradise ✦</span>
+        <h1 class="mt-3 font-display text-4xl sm:text-5xl font-normal text-sky-950">
+            Book Our Paradise
+        </h1>
+        <p class="mt-2 text-sm text-stone-600 max-w-xl">
+            Secure your place for a personalized journey through Kazakhstan's natural wonders, guided by certified regional hosts.
+        </p>
+    </div>
+
+    @if (submitted)
+    {
+        <!-- Boarding Pass / Luxury Voucher Confirmation State -->
+        <div class="mt-10 overflow-hidden rounded-3xl border-2 border-sky-400 bg-white shadow-2xl" role="status">
+            <!-- Voucher Top Banner -->
+            <div class="bg-gradient-to-r from-sky-600 via-sky-500 to-amber-500 px-8 py-6 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="h-2.5 w-2.5 rounded-full bg-amber-300 animate-pulse"></span>
+                        <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-100">Expedition Confirmed</span>
+                    </div>
+                    <h2 class="mt-1 font-display text-2xl sm:text-3xl font-bold tracking-tight">Qazaq Paradise Travel Pass</h2>
+                </div>
+                <div class="text-right sm:border-l sm:border-sky-400/60 sm:pl-6">
+                    <span class="block text-[10px] uppercase tracking-widest text-amber-100">Pass Code</span>
+                    <span class="font-mono text-xl font-bold text-white">@voucherCode</span>
+                </div>
+            </div>
+
+            <!-- Perforated Divider Simulation -->
+            <div class="relative h-4 bg-white flex items-center justify-between px-2">
+                <div class="-ml-5 h-6 w-6 rounded-full bg-paper"></div>
+                <div class="w-full border-t border-dashed border-sky-200"></div>
+                <div class="-mr-5 h-6 w-6 rounded-full bg-paper"></div>
+            </div>
+
+            <!-- Voucher Content -->
+            <div class="p-8 sm:p-10 space-y-8">
+                <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    <div class="rounded-2xl border border-sky-100 bg-sky-50/50 p-4">
+                        <span class="block text-[10px] uppercase tracking-wider text-sky-800 font-bold">Destination</span>
+                        <p class="mt-1 font-display text-lg font-bold text-sky-950">@SelectedSpot?.Name</p>
+                        <p class="text-xs font-serif italic text-amber-700">@SelectedSpot?.KazakhName</p>
+                    </div>
+                    <div class="rounded-2xl border border-sky-100 bg-sky-50/50 p-4">
+                        <span class="block text-[10px] uppercase tracking-wider text-sky-800 font-bold">Lead Guest</span>
+                        <p class="mt-1 font-display text-lg font-bold text-sky-950">@form.FullName</p>
+                        <p class="text-xs text-stone-500">@form.Travelers travelers party</p>
+                    </div>
+                    <div class="rounded-2xl border border-sky-100 bg-sky-50/50 p-4">
+                        <span class="block text-[10px] uppercase tracking-wider text-sky-800 font-bold">Expedition Date</span>
+                        <p class="mt-1 font-display text-lg font-bold text-sky-950">@form.TravelDate?.ToString("MMMM dd, yyyy")</p>
+                        <p class="text-xs text-stone-500">@SelectedSpot?.DurationDays @(SelectedSpot?.DurationDays == 1 ? "day trip" : "days tour")</p>
+                    </div>
+                    <div class="rounded-2xl border border-amber-200 bg-amber-50/60 p-4">
+                        <span class="block text-[10px] uppercase tracking-wider text-amber-900 font-bold">Total Tariff</span>
+                        <p class="mt-1 font-display text-2xl font-bold text-sky-700">$@ComputedTotal USD</p>
+                        <p class="text-[11px] text-stone-500">≈ @((ComputedTotal * 500m).ToString("N0")) KZT</p>
+                    </div>
+                </div>
+
+                <!-- Add-ons Pill Badges -->
+                <div class="rounded-2xl border border-sky-100 bg-white p-5">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-sky-900 mb-2">Included Expedition Services</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="badge-azure">✓ 4x4 Mountain Transport</span>
+                        <span class="badge-azure">✓ National Park Eco-Permits</span>
+                        @if (form.IncludeGuide)
+                        {
+                            <span class="badge-gold">✓ Bilingual Steppe Guide</span>
+                        }
+                        @if (form.IncludeYurtExperience)
+                        {
+                            <span class="badge-gold">✓ Yurt Camp Overnight & Dastarkhan Banquet</span>
+                        }
+                    </div>
+                    <p class="mt-4 text-xs text-stone-600 leading-relaxed">
+                        Our Almaty dispatch desk has notified your field expedition guide. You will receive an SMS and WhatsApp briefing on <strong>@form.Phone</strong>.
+                    </p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap gap-4 pt-2">
+                    <button class="btn-gold" @onclick="ResetForm">
+                        Book Another Paradise Spot
+                    </button>
+                    <a href="/spots" class="btn-outline-dark">
+                        Back to Destinations
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Booking Layout -->
+        <div class="mt-10 grid gap-10 lg:grid-cols-12 items-start">
+            <!-- Form Card -->
+            <div class="lg:col-span-7 rounded-3xl border border-sky-100 bg-white p-6 sm:p-8 shadow-sm">
+                <EditForm Model="form" OnValidSubmit="HandleValidSubmit" class="space-y-6" novalidate>
+                    <DataAnnotationsValidator />
+
+                    <!-- Destination Selection -->
+                    <div>
+                        <label for="spot" class="field-label">Select Destination *</label>
+                        <select id="spot" class="field" @bind="form.SpotId" @bind:after="OnSpotChanged">
+                            <option value="0">-- Select a Kazakh Destination --</option>
+                            @foreach (var spot in SampleData.Spots)
+                            {
+                                <option value="@spot.Id">@spot.Name (@spot.GetFormattedRegion()) - $@spot.BasePriceUsd</option>
+                            }
+                        </select>
+                        <ValidationMessage For="() => form.SpotId" class="validation-message" />
+                    </div>
+
+                    <!-- Personal Information -->
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <label for="name" class="field-label">Full Name *</label>
+                            <InputText id="name" class="field" placeholder="Askar Temir" @bind-Value="form.FullName" />
+                            <ValidationMessage For="() => form.FullName" class="validation-message" />
+                        </div>
+                        <div>
+                            <label for="email" class="field-label">Email Address *</label>
+                            <InputText id="email" type="email" class="field" placeholder="askar@example.kz" @bind-Value="form.Email" />
+                            <ValidationMessage For="() => form.Email" class="validation-message" />
+                        </div>
+                    </div>
+
+                    <!-- Contact & Date -->
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <label for="phone" class="field-label">Mobile Number *</label>
+                            <InputText id="phone" class="field" placeholder="+7 701 555 0192" @bind-Value="form.Phone" />
+                            <ValidationMessage For="() => form.Phone" class="validation-message" />
+                        </div>
+                        <div>
+                            <label for="date" class="field-label">Target Travel Date *</label>
+                            <InputDate id="date" class="field" @bind-Value="form.TravelDate" />
+                            <ValidationMessage For="() => form.TravelDate" class="validation-message" />
+                        </div>
+                    </div>
+
+                    <!-- Traveler Count Stepper -->
+                    <div class="rounded-2xl border border-sky-100 bg-sky-50/40 p-4">
+                        <label class="field-label">Expedition Party Size (1 to 20 Guests)</label>
+                        <div class="flex items-center gap-3 mt-2">
+                            <button type="button" class="btn-outline-dark h-10 w-10 p-0 flex items-center justify-center font-bold text-base"
+                                    @onclick="() => UpdateTravelers(form.Travelers - 1)">-</button>
+                            <InputNumber class="field w-20 text-center font-bold text-base" @bind-Value="form.Travelers" min="1" max="20" />
+                            <button type="button" class="btn-outline-dark h-10 w-10 p-0 flex items-center justify-center font-bold text-base"
+                                    @onclick="() => UpdateTravelers(form.Travelers + 1)">+</button>
+                            @if (form.Travelers >= 4)
+                            {
+                                <span class="badge-gold">12% Group Discount Applied</span>
+                            }
+                        </div>
+                        <ValidationMessage For="() => form.Travelers" class="validation-message" />
+                    </div>
+
+                    <!-- Cultural Add-ons -->
+                    <div class="rounded-2xl border border-sky-100 bg-sky-50/40 p-4 space-y-3">
+                        <span class="block text-[11px] font-bold uppercase tracking-wider text-sky-800">Bespoke Inclusions</span>
+                        
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" @bind="form.IncludeGuide" class="mt-1 h-4 w-4 rounded-md border-sky-300 text-sky-600 focus:ring-sky-500" />
+                            <div>
+                                <span class="block text-sm font-semibold text-sky-950">Certified Nomadic Guide ($65/day)</span>
+                                <span class="block text-xs text-stone-500">Dedicated expert fluent in English, Kazakh, and local folklore.</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 cursor-pointer border-t border-sky-100 pt-3">
+                            <input type="checkbox" @bind="form.IncludeYurtExperience" class="mt-1 h-4 w-4 rounded-md border-sky-300 text-sky-600 focus:ring-sky-500" />
+                            <div>
+                                <span class="block text-sm font-semibold text-sky-950">Yurt Camp Overnight & Dastarkhan ($45/person)</span>
+                                <span class="block text-xs text-stone-500">Sleep in handcrafted felt yurts; hot baursaks and authentic Beshbarmak dinner.</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Notes -->
+                    <div>
+                        <label for="notes" class="field-label">Special Inquiries or Dietary Preferences</label>
+                        <InputTextArea id="notes" rows="3" class="field" 
+                                       placeholder="Vegetarian/Halal meals, high-altitude gear rental, horse riding requests..."
+                                       @bind-Value="form.SpecialRequests" />
+                        <ValidationMessage For="() => form.SpecialRequests" class="validation-message" />
+                    </div>
+
+                    <!-- Submit Button with Loading State -->
+                    <button type="submit" class="btn-gold w-full py-3.5 text-xs shadow-md" disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <svg class="inline-block animate-spin -ml-1 mr-2 h-4 w-4 text-slate-950" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>Transmitting Reservation to Almaty Dispatch...</span>
+                        }
+                        else
+                        {
+                            <span>Confirm & Transmit Paradise Reservation →</span>
+                        }
+                    </button>
+                </EditForm>
+            </div>
+
+            <!-- Sticky Summary Card -->
+            <div class="lg:col-span-5 sticky top-24">
+                <div class="rounded-3xl border border-sky-100 bg-white p-6 shadow-sm">
+                    <span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-sky-800">Live Summary</span>
+
+                    @if (SelectedSpot is not null)
+                    {
+                        <div class="mt-4">
+                            <div class="overflow-hidden rounded-2xl border border-sky-100">
+                                <img src="@SelectedSpot.ImageUrl" alt="@SelectedSpot.Name" 
+                                     class="h-44 w-full object-cover" />
+                            </div>
+
+                            <div class="mt-4">
+                                <span class="badge-azure text-[10px]">@SelectedSpot.GetFormattedRegion()</span>
+                                @if (SelectedSpot.IsUnescoHeritage)
+                                {
+                                    <span class="badge-gold text-[10px] ml-1">UNESCO Site</span>
+                                }
+                                <h3 class="mt-1 font-display text-2xl font-bold text-sky-950">@SelectedSpot.Name</h3>
+                                <p class="text-xs font-serif italic text-amber-700">@SelectedSpot.KazakhName</p>
+                            </div>
+
+                            <!-- Cost Calculation Breakdown -->
+                            <div class="mt-5 space-y-2 border-t border-sky-100 pt-4 text-xs">
+                                <div class="flex justify-between text-stone-600">
+                                    <span>Base rate ($@SelectedSpot.BasePriceUsd × @form.Travelers guests):</span>
+                                    <span class="font-semibold text-sky-950">$@(SelectedSpot.BasePriceUsd * form.Travelers)</span>
+                                </div>
+
+                                @if (form.Travelers >= 4)
+                                {
+                                    <div class="flex justify-between text-emerald-600 font-semibold">
+                                        <span>Group Incentive (12% off):</span>
+                                        <span>-$@((SelectedSpot.BasePriceUsd * form.Travelers * 0.12m).ToString("0.00"))</span>
+                                    </div>
+                                }
+
+                                @if (form.IncludeGuide)
+                                {
+                                    <div class="flex justify-between text-stone-600">
+                                        <span>Nomadic Guide ($65 × @SelectedSpot.DurationDays @(SelectedSpot.DurationDays == 1 ? "day" : "days")):</span>
+                                        <span class="font-semibold text-sky-950">$@(65 * SelectedSpot.DurationDays)</span>
+                                    </div>
+                                }
+
+                                @if (form.IncludeYurtExperience)
+                                {
+                                    <div class="flex justify-between text-stone-600">
+                                        <span>Yurt Overnight ($45 × @form.Travelers guests):</span>
+                                        <span class="font-semibold text-sky-950">$@(45 * form.Travelers)</span>
+                                    </div>
+                                }
+
+                                <div class="mt-4 border-t border-sky-100 pt-4">
+                                    <div class="flex items-baseline justify-between">
+                                        <span class="text-xs font-bold uppercase tracking-wider text-sky-950">Estimated Total:</span>
+                                        <div class="text-right">
+                                            <span class="font-display text-3xl font-bold text-sky-700">$@ComputedTotal</span>
+                                            <span class="block text-[11px] text-stone-500">≈ @((ComputedTotal * 500m).ToString("N0")) KZT</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="mt-6 rounded-2xl border border-dashed border-sky-200 p-8 text-center text-xs text-stone-500">
+                            <p>Select a destination on the left to review your dynamic estimate.</p>
+                        </div>
+                    }
+
+                    <div class="mt-6 rounded-2xl bg-sky-50/50 border border-sky-100 p-4 text-[11px] text-stone-600 space-y-1.5">
+                        <p class="font-bold text-sky-950">Kazakhstan Travel Guarantee:</p>
+                        <p>✓ Complimentary cancellation up to 48 hours prior.</p>
+                        <p>✓ All National Park permits & clearances handled.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</section>
+
+@code {
+    [SupplyParameterFromQuery]
+    public int? SpotId { get; set; }
+
+    private TourBookingForm form = new();
+    private bool isSubmitting;
+    private bool submitted;
+    private string voucherCode = "";
+
+    private TouristSpot? SelectedSpot => SampleData.Spots.FirstOrDefault(s => s.Id == form.SpotId);
+
+    private decimal ComputedTotal => SelectedSpot is null 
+        ? 0m 
+        : form.ComputeEstimate(SelectedSpot.BasePriceUsd, SelectedSpot.DurationDays);
+
+    protected override void OnInitialized()
+    {
+        if (SpotId.HasValue && SampleData.Spots.Any(s => s.Id == SpotId.Value))
+        {
+            form.SpotId = SpotId.Value;
+        }
+        else if (form.SpotId == 0 && SampleData.Spots.Any())
+        {
+            form.SpotId = SampleData.Spots.First().Id;
+        }
+    }
+
+    private void OnSpotChanged()
+    {
+        StateHasChanged();
+    }
+
+    private void UpdateTravelers(int val)
+    {
+        form.Travelers = Math.Clamp(val, 1, 20);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        isSubmitting = true;
+        await Task.Delay(850);
+        voucherCode = $"KZ-SUN-{DateTime.Now.Year}-{Random.Shared.Next(1000, 9999)}";
+        isSubmitting = false;
+        submitted = true;
+    }
+
+    private void ResetForm()
+    {
+        form = new()
+        {
+            SpotId = SampleData.Spots.FirstOrDefault()?.Id ?? 1
+        };
+        submitted = false;
+    }
+}
